@@ -269,7 +269,7 @@ public class SqlParser {
             if (alias != null) orderByName = orderByName.replaceFirst(alias + "\\.", "");
 
             ScriptSortBuilder.ScriptSortType scriptSortType = judgeIsStringSort(expr);
-            select.addOrderBy(f.getNestedPath(), orderByName, type, scriptSortType, missing, unmappedType, numericType, format);
+            select.addOrderBy(f.getNestedPath(), orderByName, type, scriptSortType, missing, unmappedType, numericType, format, f.getNested().where);
         }
     }
 

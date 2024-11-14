@@ -243,7 +243,7 @@ public class DefaultQueryAction extends QueryAction {
 	 * @param orderBys
 	 *            list of Order object
 	 */
-	private void setSorts(List<Order> orderBys) {
+	private void setSorts(List<Order> orderBys) throws SqlParseException {
 		for (Order order : orderBys) {
 			if (order.getName().equals(ScoreSortBuilder.NAME)) {
 				request.addSort(SortBuilders.scoreSort().order(SortOrder.valueOf(order.getType())));
@@ -258,7 +258,11 @@ public class DefaultQueryAction extends QueryAction {
 			} else {
 				FieldSortBuilder fieldSortBuilder = SortBuilders.fieldSort(order.getName()).order(SortOrder.valueOf(order.getType()));
 				if (order.getNestedPath() != null) {
-					fieldSortBuilder.setNestedSort(new NestedSortBuilder(order.getNestedPath()));
+					NestedSortBuilder sortBuilder = new NestedSortBuilder(order.getNestedPath());
+					if (order.getFilter() != null) {
+						sortBuilder.setFilter(QueryMaker.explan(order.getFilter()));
+					}
+					fieldSortBuilder.setNestedSort(sortBuilder);
 				}
 				if (order.getMissing() != null) {
 					fieldSortBuilder.missing(order.getMissing());

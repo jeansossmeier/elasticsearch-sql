@@ -16,6 +16,7 @@ public class Order {
 	private String unmappedType;
 	private String numericType;
 	private String format;
+	private Where filter;
 
 	public Order(String nestedPath, String name, String type) {
         this.nestedPath = nestedPath;
@@ -85,5 +86,13 @@ public class Order {
 
 	public void setFormat(String format) {
 		this.format = format;
+	}
+
+	public Where getFilter() {
+		return filter;
+	}
+
+	public void setFilter(Where filter) {
+		this.filter = filter;
 	}
 }

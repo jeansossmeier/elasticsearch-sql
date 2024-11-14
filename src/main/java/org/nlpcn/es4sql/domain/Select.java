@@ -66,7 +66,7 @@ public class Select extends Query {
 		return orderBys;
 	}
 
-	public void addOrderBy(String nestedPath, String name, String type, ScriptSortBuilder.ScriptSortType scriptSortType, Object missing, String unmappedType, String numericType, String format) {
+	public void addOrderBy(String nestedPath, String name, String type, ScriptSortBuilder.ScriptSortType scriptSortType, Object missing, String unmappedType, String numericType, String format, Where filter) {
 		if ("_score".equals(name)) { //zhongshu-comment 可以直接在order by子句中写_score，根据该字段排序 select * from tbl order by _score asc
 			isQuery = true;
 		}
@@ -77,6 +77,7 @@ public class Select extends Query {
         order.setUnmappedType(unmappedType);
         order.setNumericType(numericType);
         order.setFormat(format);
+        order.setFilter(filter);
 		this.orderBys.add(order);
 	}
 

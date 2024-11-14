@@ -50,13 +50,18 @@ public class NestedType {
         if (size != 3 && size != 2 && size != 1)
             throw new SqlParseException("on nested object only allowed 3 parameters (path,conditions..,inner_hits) or 2 parameters (field,path)/(path,conditions..) or 1 parameter (field) ");
 
-        // inner_hits
-        if (size == 3) {
-            this.innerHits = Util.extendedToString(parameters.remove(--size));
-        }
-
         String field = Util.extendedToString(parameters.get(0));
         this.field = field;
+
+        if (size == 3) {
+            SQLExpr paramExpr = parameters.get(--size);
+            if (paramExpr instanceof SQLBinaryOpExpr) { // allow where clauses with field and different nested path
+                parseWhere(field, paramExpr);
+            } else { // inner_hits
+                this.innerHits = Util.extendedToString(parameters.remove(size));
+            }
+        }
+
         if (size == 1) {
             //calc path myself..
             if (!field.contains(".")) {
@@ -76,7 +81,6 @@ public class NestedType {
         } else if (size == 2) {
             SQLExpr secondParameter = parameters.get(1);
             if(secondParameter instanceof SQLTextLiteralExpr || secondParameter instanceof SQLIdentifierExpr || secondParameter instanceof SQLPropertyExpr) {
-
                 String pathString = Util.extendedToString(secondParameter);
                 if(pathString.equals(""))
                     this.path = null;
@@ -85,17 +89,21 @@ public class NestedType {
                 this.simple = true;
             }
             else {
-                this.path = field;
-                Where where = Where.newInstance();
-                new WhereParser(new SqlParser()).parseWhere(secondParameter,where);
-                if(where.getWheres().size() == 0)
-                    throw new SqlParseException("unable to parse filter where.");
-                this.where = where;
-                simple = false;
+                parseWhere(field, secondParameter);
             }
         }
 
         return true;
+    }
+
+    private void parseWhere(String field, SQLExpr param) throws SqlParseException {
+        this.path = field;
+        Where where = Where.newInstance();
+        new WhereParser(new SqlParser()).parseWhere(param,where);
+        if(where.getWheres().size() == 0)
+            throw new SqlParseException("unable to parse filter where.");
+        this.where = where;
+        simple = false;
     }
 
     public boolean isSimple() {
