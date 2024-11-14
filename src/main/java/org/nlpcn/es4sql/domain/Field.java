@@ -58,6 +58,10 @@ public class Field implements Cloneable{
         this.nested = nested;
     }
 
+    public NestedType getNested() {
+        return nested;
+    }
+
     public String getNestedPath() {
         if(this.nested == null ) return null;
         return this.nested.path;
